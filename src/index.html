@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="flex items-center justify-center h-screen">
+    <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+        <h2 class="mb-4 text-2xl font-bold">Register</h2>
+        <form id="registerForm">
+            <div class="mb-4">
+                <label for="username" class="block mb-2 font-medium">Username:</label>
+                <input type="text" id="username" name="username" class="w-full px-3 py-2 border rounded-md border-zinc-200" required>
+            </div>
+            <div class="mb-4">
+              <label for="password" class="block mb-2 font-medium">Password:</label>
+              <input type="password" id="password" name="password" class="w-full px-3 py-2 border rounded-md border-zinc-200" required>
+            </div>
+            <div class="mb-4">
+                <label for="confirm_password" class="block mb-2 font-medium">Confirm Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="w-full px-3 py-2 border rounded-md border-zinc-200" required>
+            </div>
+            <button type="submit" class="w-full px-4 py-2 font-medium text-white transition-colors bg-red-500 rounded-md hover:bg-red-600">Register</button>
+        </form>
+        <div id="message" class="mt-4 text-center"></div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const messageDiv = document.getElementById('message');
+
+        if (password !== confirmPassword) {
+            messageDiv.textContent = "Passwords do not match.";
+            messageDiv.classList.add("text-red-500");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                messageDiv.textContent = "Registration successful!";
+                messageDiv.classList.remove("text-red-500");
+                messageDiv.classList.add("text-green-500");
+            } else {
+                messageDiv.textContent = data.error || "Registration failed.";
+                messageDiv.classList.add("text-red-500");
+            }
+        } catch (error) {
+            messageDiv.textContent = "An error occurred. Please try again.";
+            messageDiv.classList.add("text-red-500");
+        }
+    });
+</script>
+</body>
+</html>

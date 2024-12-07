@@ -43,8 +43,16 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 
 // Middleware
+const allowedOrigins = ['http://localhost:3000', 'http://localhost'];
+
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
@@ -84,7 +92,15 @@ app.post('/api/register', async (req, res, next) => {
     next(error);
   }
 });
-
+// make a GET request to http://localhost:5000/api/users to see the data
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 // Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
